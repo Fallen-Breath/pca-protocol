@@ -1,5 +1,6 @@
 package com.plusls.carpet.network;
 
+import com.google.common.collect.Lists;
 import com.plusls.carpet.ModInfo;
 import com.plusls.carpet.PcaMod;
 import com.plusls.carpet.PcaSettings;
@@ -30,33 +31,38 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 @SuppressWarnings("unused")
 public class PcaSyncProtocol {
 
+    public static final List<Identifier> ALL_PACKET_IDS = Lists.newArrayList();
+
     public static final ReentrantLock lock = new ReentrantLock(true);
     public static final ReentrantLock pairLock = new ReentrantLock(true);
     // 发送包
-    private static final Identifier ENABLE_PCA_SYNC_PROTOCOL = ModInfo.id("enable_pca_sync_protocol");
-    private static final Identifier DISABLE_PCA_SYNC_PROTOCOL = ModInfo.id("disable_pca_sync_protocol");
-    private static final Identifier UPDATE_ENTITY = ModInfo.id("update_entity");
-    private static final Identifier UPDATE_BLOCK_ENTITY = ModInfo.id("update_block_entity");
+    private static final Identifier ENABLE_PCA_SYNC_PROTOCOL = newId("enable_pca_sync_protocol");
+    private static final Identifier DISABLE_PCA_SYNC_PROTOCOL = newId("disable_pca_sync_protocol");
+    private static final Identifier UPDATE_ENTITY = newId("update_entity");
+    private static final Identifier UPDATE_BLOCK_ENTITY = newId("update_block_entity");
     // 响应包
-    public static final Identifier SYNC_BLOCK_ENTITY = ModInfo.id("sync_block_entity");
-    public static final Identifier SYNC_ENTITY = ModInfo.id("sync_entity");
-    public static final Identifier CANCEL_SYNC_BLOCK_ENTITY = ModInfo.id("cancel_sync_block_entity");
-    public static final Identifier CANCEL_SYNC_ENTITY = ModInfo.id("cancel_sync_entity");
+    public static final Identifier SYNC_BLOCK_ENTITY = newId("sync_block_entity");
+    public static final Identifier SYNC_ENTITY = newId("sync_entity");
+    public static final Identifier CANCEL_SYNC_BLOCK_ENTITY = newId("cancel_sync_block_entity");
+    public static final Identifier CANCEL_SYNC_ENTITY = newId("cancel_sync_entity");
     private static final Map<ServerPlayerEntity, Pair<Identifier, BlockPos>> playerWatchBlockPos = new HashMap<>();
     private static final Map<ServerPlayerEntity, Pair<Identifier, Entity>> playerWatchEntity = new HashMap<>();
     private static final Map<Pair<Identifier, BlockPos>, Set<ServerPlayerEntity>> blockPosWatchPlayerSet = new HashMap<>();
     private static final Map<Pair<Identifier, Entity>, Set<ServerPlayerEntity>> entityWatchPlayerSet = new HashMap<>();
     private static final MutablePair<Identifier, Entity> identifierEntityPair = new MutablePair<>();
     private static final MutablePair<Identifier, BlockPos> identifierBlockPosPair = new MutablePair<>();
+
+    private static Identifier newId(String path) {
+        var id = ModInfo.id(path);
+        ALL_PACKET_IDS.add(id);
+        return id;
+    }
 
     // 通知客户端服务器已启用 PcaSyncProtocol
     public static void enablePcaSyncProtocol(@NotNull ServerPlayerEntity player) {
