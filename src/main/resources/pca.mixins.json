@@ -4,10 +4,7 @@
   "package": "com.plusls.carpet.mixin",
   "compatibilityLevel": "{{COMPATIBILITY_LEVEL}}",
   "mixins": [
-    "CustomPayloadC2SPacketMixin",
     "MinecraftServerMixin",
-    "PlayerManagerMixin",
-    "ServerPlayNetworkHandlerMixin",
     "rule.pcaSyncProtocol.block.MixinAbstractFurnaceBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBarrelBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBeehiveBlockEntity",

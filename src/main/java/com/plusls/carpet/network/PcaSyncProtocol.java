@@ -1,13 +1,17 @@
 package com.plusls.carpet.network;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.plusls.carpet.ModInfo;
 import com.plusls.carpet.PcaMod;
 import com.plusls.carpet.PcaSettings;
 import com.plusls.carpet.fakefapi.PacketSender;
-import com.plusls.carpet.fakefapi.ServerPlayNetworking;
 import com.plusls.carpet.util.CarpetHelper;
 import io.netty.buffer.Unpooled;
+import me.fallenbreath.fanetlib.api.event.FanetlibServerEvents;
+import me.fallenbreath.fanetlib.api.packet.FanetlibPackets;
+import me.fallenbreath.fanetlib.api.packet.PacketCodec;
+import me.fallenbreath.fanetlib.api.packet.PacketHandlerS2C;
 import net.minecraft.block.BarrelBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -33,6 +37,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class PcaSyncProtocol {
@@ -57,6 +63,57 @@ public class PcaSyncProtocol {
     private static final Map<Pair<Identifier, Entity>, Set<ServerPlayerEntity>> entityWatchPlayerSet = new HashMap<>();
     private static final MutablePair<Identifier, Entity> identifierEntityPair = new MutablePair<>();
     private static final MutablePair<Identifier, BlockPos> identifierBlockPosPair = new MutablePair<>();
+
+    // ======================================= Protocol Init =======================================
+
+    @FunctionalInterface
+    private interface FapiCallback
+    {
+        void process(MinecraftServer server, ServerPlayerEntity player,
+                     ServerPlayNetworkHandler handler, PacketByteBuf buf,
+                     PacketSender responseSender);
+    }
+
+    private static final Set<Identifier> s2cIds = Sets.newHashSet();
+
+    public static void init() {
+        PacketSender sender = new PacketSender();
+        PacketCodec<PacketByteBuf> codec = PacketCodec.of((p, buf) -> buf.writeBytes(p), b -> b);
+
+        BiConsumer<Identifier, FapiCallback> c2s = (id, cb) -> {
+            FanetlibPackets.registerC2S(id, codec, (buf, ctx) -> {
+                cb.process(ctx.getServer(), ctx.getPlayer(), ctx.getNetworkHandler(), buf, sender);
+            });
+        };
+        Consumer<Identifier> s2c = (id) -> {
+            s2cIds.add(id);
+            FanetlibPackets.registerS2C(id, codec, PacketHandlerS2C.dummy());
+        };
+
+        c2s.accept(SYNC_BLOCK_ENTITY, PcaSyncProtocol::syncBlockEntityHandler);
+        c2s.accept(SYNC_ENTITY, PcaSyncProtocol::syncEntityHandler);
+        c2s.accept(CANCEL_SYNC_BLOCK_ENTITY, PcaSyncProtocol::cancelSyncBlockEntityHandler);
+        c2s.accept(CANCEL_SYNC_ENTITY, PcaSyncProtocol::cancelSyncEntityHandler);
+
+        s2c.accept(ENABLE_PCA_SYNC_PROTOCOL);
+        s2c.accept(DISABLE_PCA_SYNC_PROTOCOL);
+        s2c.accept(UPDATE_ENTITY);
+        s2c.accept(UPDATE_BLOCK_ENTITY);
+
+        FanetlibServerEvents.registerPlayerJoinListener((svr, nh, p) -> onJoin(nh, sender, svr));
+        FanetlibServerEvents.registerPlayerDisconnectListener((svr, nh, p) -> onDisconnect(nh, svr));
+    }
+
+    private static class ServerPlayNetworking {
+        public static void send(ServerPlayerEntity player, Identifier identifier, PacketByteBuf buf) {
+            if (!s2cIds.contains(identifier)) {
+                throw new RuntimeException("unknown identifier " + identifier);
+            }
+            player.networkHandler.sendPacket(FanetlibPackets.createS2C(identifier, buf));
+        }
+    }
+
+    // =============================================================================================
 
     private static Identifier newId(String path) {
         var id = ModInfo.id(path);
@@ -111,15 +168,6 @@ public class PcaSyncProtocol {
         buf.writeBlockPos(blockEntity.getPos());
         buf.writeNbt(blockEntity.createNbt());
         ServerPlayNetworking.send(player, UPDATE_BLOCK_ENTITY, buf);
-    }
-
-    public static void init() {
-//        ServerPlayNetworking.registerGlobalReceiver(SYNC_BLOCK_ENTITY, PcaSyncProtocol::syncBlockEntityHandler);
-//        ServerPlayNetworking.registerGlobalReceiver(SYNC_ENTITY, PcaSyncProtocol::syncEntityHandler);
-//        ServerPlayNetworking.registerGlobalReceiver(CANCEL_SYNC_BLOCK_ENTITY, PcaSyncProtocol::cancelSyncBlockEntityHandler);
-//        ServerPlayNetworking.registerGlobalReceiver(CANCEL_SYNC_ENTITY, PcaSyncProtocol::cancelSyncEntityHandler);
-//        ServerPlayConnectionEvents.JOIN.register(PcaSyncProtocol::onJoin);
-//        ServerPlayConnectionEvents.DISCONNECT.register(PcaSyncProtocol::onDisconnect);
     }
 
     public static void onDisconnect(ServerPlayNetworkHandler serverPlayNetworkHandler, MinecraftServer minecraftServer) {
