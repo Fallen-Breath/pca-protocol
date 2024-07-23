@@ -166,11 +166,17 @@ public class PcaSyncProtocol {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeIdentifier(world.getRegistryKey().getValue());
         buf.writeBlockPos(blockEntity.getPos());
-        buf.writeNbt(blockEntity.createNbt(
-                //#if MC >= 12006
-                //$$ world.getRegistryManager()
+        buf.writeNbt(
+                //#if MC >= 11800
+                blockEntity.createNbt(
+                        //#if MC >= 12006
+                        //$$ world.getRegistryManager()
+                        //#endif
+                )
+                //#else
+                //$$ blockEntity.writeNbt(new NbtCompound())
                 //#endif
-        ));
+        );
         ServerPlayNetworking.send(player, UPDATE_BLOCK_ENTITY, buf);
     }
 
