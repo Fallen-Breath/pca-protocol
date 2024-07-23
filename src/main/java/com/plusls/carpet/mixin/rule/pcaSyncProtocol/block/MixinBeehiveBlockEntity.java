@@ -8,12 +8,12 @@ import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -35,24 +35,31 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
     }
 
     @Inject(method = "tryReleaseBee", at = @At(value = "RETURN"))
-    public void postTryReleaseBee(BlockState state, BeehiveBlockEntity.BeeState beeState, CallbackInfoReturnable<List<Entity>> cir) {
+    public void postTryReleaseBee(CallbackInfoReturnable<List<Entity>> cir) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this) && cir.getReturnValue() != null) {
             ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
         }
     }
 
     @Inject(method = "readNbt", at = @At(value = "RETURN"))
-    public void postFromTag(NbtCompound nbt, CallbackInfo ci) {
+    public void postFromTag(CallbackInfo ci) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
         }
     }
 
-    @Inject(method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;discard()V", ordinal = 0))
-    public void postEnterHive(Entity entity, boolean hasNectar, int ticksInHive, CallbackInfo ci) {
+    @ModifyVariable(
+            //#if MC >= 12006
+            //$$ method = "tryEnterHive",
+            //#else
+            method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V",
+            //#endif
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;discard()V", ordinal = 0),
+            argsOnly = true)
+    public Entity postEnterHive(Entity entity) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
         }
+        return entity;
     }
 }
