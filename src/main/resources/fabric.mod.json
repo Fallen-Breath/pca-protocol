@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "pca-protocol",
+  "id": "${id}",
   "version": "${version}",
-  "name": "pca protocol",
+  "name": "${name}",
   "description": "Adds PCA protocol support to the server",
   "authors": [
     "plusls"
@@ -22,7 +22,7 @@
   "accessWidener": "pca.accesswidener",
   "depends": {
     "fabricloader": ">=0.7.4",
-    "minecraft": ">=1.20.2 1.20.x"
+    "minecraft": "${minecraft_dependency}"
   },
   "breaks": {
     "pca": "*"

@@ -1,57 +1,61 @@
 plugins {
-    id('fabric-loom').version('1.2-SNAPSHOT')
-    id('maven-publish')
-    id('org.ajoberstar.grgit').version('4.1.0')
+	id 'maven-publish'
+	id 'fabric-loom' version '1.7-SNAPSHOT' apply false
+
+	// https://github.com/ReplayMod/preprocessor
+	// https://github.com/Fallen-Breath/preprocessor
+	id 'com.replaymod.preprocess' version 'ce1aeb2b'
+
+	// https://github.com/Fallen-Breath/yamlang
+	id 'me.fallenbreath.yamlang' version '1.4.0' apply false
 }
 
-setSourceCompatibility(JavaVersion.toVersion(project.java_version))
-setTargetCompatibility(JavaVersion.toVersion(project.java_version))
-String real_version = "${project.mod_version}"
-
-//if (project.pre_release as String != "") {
-//    real_version += "-${project.pre_release}+"
-//    if (project.pre_release as String == "alpha" && !grgit.status().clean) {
-//        real_version += new Date().format("yyyyMMdd.HHmmss") + ".dirty." + grgit.head().abbreviatedId
-//    } else {
-//        real_version += grgit.head().abbreviatedId
-//    }
-//}
-
-setArchivesBaseName("${project.archives_base_name}-${project.minecraft_version}")
-setVersion(real_version)
-setGroup(project.maven_group)
-repositories {
-    maven {
-        url "https://www.cursemaven.com"
-    }
-    mavenCentral()
+preprocess {
+//	def mc114  = createNode('1.14.4', 1_14_04, '')
+//	def mc115  = createNode('1.15.2', 1_15_02, '')
+//	def mc116  = createNode('1.16.5', 1_16_05, '')
+//	def mc117  = createNode('1.17.1', 1_17_01, '')
+//	def mc118  = createNode('1.18.2', 1_18_02, '')
+//	def mc119  = createNode('1.19.4', 1_19_04, '')
+//	def mc1201 = createNode('1.20.1', 1_20_01, '')
+	def mc1202 = createNode('1.20.2', 1_20_02, '')
+//	def mc1204 = createNode('1.20.4', 1_20_04, '')
+//	def mc1206 = createNode('1.20.6', 1_20_06, '')
+//	def mc121  = createNode('1.21'  , 1_21_00, '')
+//
+//	mc115.link(mc114, null)
+//	mc115.link(mc116, null)
+//	mc116.link(mc117, null)
+//	mc117.link(mc118, null)
+//	mc118.link(mc119, null)
+//	mc119.link(mc1201, null)
+//	mc1201.link(mc1202, null)
+//	mc1202.link(mc1204, null)
+//	mc1204.link(mc1206, null)
+//	mc1206.link(mc121, null)
 }
 
-dependencies {
-    // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-}
-
-loom {
-    accessWidenerPath.set(file("src/main/resources/pca.accesswidener"))
-}
-
-processResources {
-    inputs.property("version", real_version)
-    filesMatching("fabric.mod.json") {
-        expand(["version": real_version])
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
-    it.options.release.set(Integer.parseInt(project.java_version as String))
-}
-
-jar {
-    from("LICENSE") {
-        rename({ return "${it}_${project.archives_base_name}" })
-    }
+tasks.register('buildAndGather') {
+	subprojects {
+		dependsOn project.tasks.named('build').get()
+	}
+	doFirst {
+		println 'Gathering builds'
+		def buildLibs = {
+			p -> p.buildDir.toPath().resolve('libs')
+		}
+		delete fileTree(buildLibs(rootProject)) {
+			include '*'
+		}
+		subprojects {
+			copy {
+				from(buildLibs(project)) {
+					include '*.jar'
+					exclude '*-dev.jar', '*-sources.jar', '*-shadow.jar'
+				}
+				into buildLibs(rootProject)
+				duplicatesStrategy DuplicatesStrategy.INCLUDE
+			}
+		}
+	}
 }
