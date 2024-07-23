@@ -24,13 +24,24 @@ import java.util.Objects;
 public abstract class MixinBeehiveBlockEntity extends BlockEntity {
 
     public MixinBeehiveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
+        super(
+                type
+                //#if MC >= 11700
+                , pos, state
+                //#endif
+        );
     }
 
     @Inject(method = "tickBees", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER))
+    //#if MC >= 11700
     private static void postTickBees(World world, BlockPos pos, BlockState state, List<BeehiveBlockEntity.Bee> bees, BlockPos flowerPos, CallbackInfo ci) {
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(Objects.requireNonNull(world.getBlockEntity(pos)))) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", pos);
+        BlockEntity blockEntity = Objects.requireNonNull(world.getBlockEntity(pos));
+    //#else
+    //$$ private void postTickBees(CallbackInfo ci) {
+    //$$     BlockEntity blockEntity = this;
+    //#endif
+        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(blockEntity)) {
+            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", blockEntity.getPos());
         }
     }
 
@@ -41,7 +52,14 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
         }
     }
 
-    @Inject(method = "readNbt", at = @At(value = "RETURN"))
+    @Inject(
+            //#if MC >= 11700
+            method = "readNbt",
+            //#else
+            //$$ method = "fromTag",
+            //#endif
+            at = @At(value = "RETURN")
+    )
     public void postFromTag(CallbackInfo ci) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
@@ -54,7 +72,15 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
             //#else
             method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V",
             //#endif
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;discard()V", ordinal = 0),
+            at = @At(
+                    value = "INVOKE",
+                    //#if MC >= 11700
+                    target = "Lnet/minecraft/entity/Entity;discard()V",
+                    //#else
+                    //$$ target = "Lnet/minecraft/entity/Entity;remove()V",
+                    //#endif
+                    ordinal = 0
+            ),
             argsOnly = true)
     public Entity postEnterHive(Entity entity) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {

@@ -12,10 +12,15 @@ import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(BrewingStandBlockEntity.class)
-public abstract class MixinBrewingStandBlockEntity extends LockableContainerBlockEntity implements SidedInventory {
+public abstract class MixinBrewingStandBlockEntity extends LockableContainerBlockEntity {
 
     protected MixinBrewingStandBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
-        super(blockEntityType, blockPos, blockState);
+        super(
+                blockEntityType
+                //#if MC >= 11700
+                , blockPos, blockState
+                //#endif
+        );
     }
 
     @Override

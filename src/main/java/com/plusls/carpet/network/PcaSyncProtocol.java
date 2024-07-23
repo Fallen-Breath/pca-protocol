@@ -116,7 +116,7 @@ public class PcaSyncProtocol {
     // =============================================================================================
 
     private static Identifier newId(String path) {
-        var id = ModInfo.id(path);
+        Identifier id = ModInfo.id(path);
         ALL_PACKET_IDS.add(id);
         return id;
     }
@@ -147,7 +147,13 @@ public class PcaSyncProtocol {
     public static void updateEntity(@NotNull ServerPlayerEntity player, @NotNull Entity entity) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeIdentifier(entity.getEntityWorld().getRegistryKey().getValue());
-        buf.writeInt(entity.getId());
+        buf.writeInt(
+                //#if MC >= 11700
+                entity.getId()
+                //#else
+                //$$ entity.getEntityId()
+                //#endif
+        );
         buf.writeNbt(entity.writeNbt(new NbtCompound()));
         ServerPlayNetworking.send(player, UPDATE_ENTITY, buf);
     }

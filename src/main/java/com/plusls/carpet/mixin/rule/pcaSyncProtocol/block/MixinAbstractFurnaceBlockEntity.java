@@ -14,11 +14,16 @@ import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(AbstractFurnaceBlockEntity.class)
-public abstract class MixinAbstractFurnaceBlockEntity extends LockableContainerBlockEntity implements SidedInventory, RecipeUnlocker, RecipeInputProvider {
+public abstract class MixinAbstractFurnaceBlockEntity extends LockableContainerBlockEntity {
 
 
     protected MixinAbstractFurnaceBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
-        super(blockEntityType, blockPos, blockState);
+        super(
+                blockEntityType
+                //#if MC >= 11700
+                , blockPos, blockState
+                //#endif
+        );
     }
 
     @Override

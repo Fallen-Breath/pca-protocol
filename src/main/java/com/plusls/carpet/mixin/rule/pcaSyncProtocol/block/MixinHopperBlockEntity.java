@@ -9,26 +9,55 @@ import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.function.BooleanSupplier;
+//#if MC >= 11700
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+//#else
+//$$ import org.spongepowered.asm.mixin.injection.Inject;
+//$$ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#endif
 
 @Mixin(HopperBlockEntity.class)
 public abstract class MixinHopperBlockEntity extends LootableContainerBlockEntity implements Hopper {
 
     protected MixinHopperBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
-        super(blockEntityType, blockPos, blockState);
+        super(
+                blockEntityType
+                //#if MC >= 11700
+                , blockPos, blockState
+                //#endif
+        );
     }
 
-    @Inject(method = "insertAndExtract", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;markDirty(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V"))
-    private static void onInsertAndExtract(World world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, BooleanSupplier booleanSupplier, CallbackInfoReturnable<Boolean> cir) {
+    //#if MC >= 11700
+    @ModifyVariable(
+            method = "insertAndExtract",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/entity/HopperBlockEntity;markDirty(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V"
+            ),
+            argsOnly = true
+    )
+    private static HopperBlockEntity onInsertAndExtract(HopperBlockEntity blockEntity) {
+    //#else
+    //$$ @Inject(
+    //$$         method = "insertAndExtract",
+    //$$         at = @At(
+    //$$                 value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/block/entity/HopperBlockEntity;markDirty()V"
+    //$$         )
+    //$$ )
+    //$$ private void onInsertAndExtract(CallbackInfoReturnable<Boolean> cir) {
+    //$$     HopperBlockEntity blockEntity = (HopperBlockEntity)(Object)this;
+    //#endif
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(blockEntity)) {
-            ModInfo.LOGGER.debug("update HopperBlockEntity: {}", pos);
+            ModInfo.LOGGER.debug("update HopperBlockEntity: {}", blockEntity.getPos());
         }
+        //#if MC >= 11700
+        return blockEntity;
+        //#endif
     }
 
     @Override

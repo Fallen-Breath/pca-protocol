@@ -15,7 +15,12 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class MixinShulkerBoxBlockEntity extends LootableContainerBlockEntity implements SidedInventory {
 
     protected MixinShulkerBoxBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
-        super(blockEntityType, blockPos, blockState);
+        super(
+                blockEntityType
+                //#if MC >= 11700
+                , blockPos, blockState
+                //#endif
+        );
     }
 
     @Override

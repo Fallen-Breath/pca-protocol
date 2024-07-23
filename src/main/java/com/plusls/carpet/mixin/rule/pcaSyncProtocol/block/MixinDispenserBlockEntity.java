@@ -14,7 +14,12 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class MixinDispenserBlockEntity extends LootableContainerBlockEntity {
 
     protected MixinDispenserBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
-        super(blockEntityType, blockPos, blockState);
+        super(
+                blockEntityType
+                //#if MC >= 11700
+                , blockPos, blockState
+                //#endif
+        );
     }
 
     @Override
