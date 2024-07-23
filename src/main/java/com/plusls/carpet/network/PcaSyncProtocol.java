@@ -209,6 +209,14 @@ public class PcaSyncProtocol {
         PcaSyncProtocol.clearPlayerWatchEntity(player);
     }
 
+    private static ServerWorld getServerWorldFromPlayer(ServerPlayerEntity player) {
+        //#if MC >= 12000
+        return player.getServerWorld();
+        //#else
+        //$$ return player.getWorld();
+        //#endif
+    }
+
     // 客户端请求同步 BlockEntity
     // 包内包含 pos
     // 由于正常的场景一般不会跨世界请求数据，因此包内并不包含 World，以玩家所在的 World 为准
@@ -219,7 +227,7 @@ public class PcaSyncProtocol {
             return;
         }
         BlockPos pos = buf.readBlockPos();
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = getServerWorldFromPlayer(player);
         BlockState blockState = world.getBlockState(pos);
         clearPlayerWatchData(player);
         ModInfo.LOGGER.debug("{} watch blockpos {}: {}", player.getName().getString(), pos, blockState);
@@ -274,7 +282,7 @@ public class PcaSyncProtocol {
             return;
         }
         int entityId = buf.readInt();
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = getServerWorldFromPlayer(player);
         Entity entity = world.getEntityById(entityId);
         if (entity == null) {
             ModInfo.LOGGER.debug("Can't find entity {}.", entityId);
