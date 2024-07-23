@@ -17,9 +17,9 @@ preprocess {
 //	def mc117  = createNode('1.17.1', 1_17_01, '')
 //	def mc118  = createNode('1.18.2', 1_18_02, '')
 //	def mc119  = createNode('1.19.4', 1_19_04, '')
-//	def mc1201 = createNode('1.20.1', 1_20_01, '')
+	def mc1201 = createNode('1.20.1', 1_20_01, '')
 	def mc1202 = createNode('1.20.2', 1_20_02, '')
-//	def mc1204 = createNode('1.20.4', 1_20_04, '')
+	def mc1204 = createNode('1.20.4', 1_20_04, '')
 //	def mc1206 = createNode('1.20.6', 1_20_06, '')
 //	def mc121  = createNode('1.21'  , 1_21_00, '')
 //
@@ -29,8 +29,8 @@ preprocess {
 //	mc117.link(mc118, null)
 //	mc118.link(mc119, null)
 //	mc119.link(mc1201, null)
-//	mc1201.link(mc1202, null)
-//	mc1202.link(mc1204, null)
+	mc1201.link(mc1202, null)
+	mc1202.link(mc1204, null)
 //	mc1204.link(mc1206, null)
 //	mc1206.link(mc121, null)
 }
