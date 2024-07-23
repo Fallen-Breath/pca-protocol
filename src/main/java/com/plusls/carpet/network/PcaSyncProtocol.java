@@ -40,6 +40,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+//#if MC < 11600
+//$$ import net.minecraft.world.dimension.DimensionType;
+//#endif
+
 @SuppressWarnings("unused")
 public class PcaSyncProtocol {
 
@@ -121,6 +125,14 @@ public class PcaSyncProtocol {
         return id;
     }
 
+    private static Identifier getDimId(World world) {
+        //#if MC >= 11600
+        return world.getRegistryKey().getValue();
+        //#else
+        //$$ return DimensionType.getId(world.getDimension().getType());
+        //#endif
+    }
+
     // 通知客户端服务器已启用 PcaSyncProtocol
     public static void enablePcaSyncProtocol(@NotNull ServerPlayerEntity player) {
         // 在这写如果是在 BC 端的情况下，ServerPlayNetworking.canSend 在这个时机调用会出现错误
@@ -146,7 +158,7 @@ public class PcaSyncProtocol {
     // 传输 World 是为了通知客户端该 Entity 属于哪个 World
     public static void updateEntity(@NotNull ServerPlayerEntity player, @NotNull Entity entity) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeIdentifier(entity.getEntityWorld().getRegistryKey().getValue());
+        buf.writeIdentifier(getDimId(entity.getEntityWorld()));
         buf.writeInt(
                 //#if MC >= 11700
                 entity.getId()
@@ -170,7 +182,7 @@ public class PcaSyncProtocol {
         }
 
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeIdentifier(world.getRegistryKey().getValue());
+        buf.writeIdentifier(getDimId(world));
         buf.writeBlockPos(blockEntity.getPos());
         buf.writeNbt(
                 //#if MC >= 11800
@@ -252,11 +264,11 @@ public class PcaSyncProtocol {
                 // The method in World now checks that the caller is from the same thread...
                 blockEntityAdj = world.getWorldChunk(posAdj).getBlockEntity(posAdj);
             }
-        } else if (blockState.isOf(Blocks.BARREL) && CarpetHelper.getBoolRuleValue("largeBarrel")) {
+        } else if (blockState.getBlock() == Blocks.BARREL && CarpetHelper.getBoolRuleValue("largeBarrel")) {
             Direction directionOpposite = blockState.get(BarrelBlock.FACING).getOpposite();
             BlockPos posAdj = pos.offset(directionOpposite);
             BlockState blockStateAdj = world.getBlockState(posAdj);
-            if (blockStateAdj.isOf(Blocks.BARREL) && blockStateAdj.get(BarrelBlock.FACING) == directionOpposite) {
+            if (blockStateAdj.getBlock() == Blocks.BARREL && blockStateAdj.get(BarrelBlock.FACING) == directionOpposite) {
                 blockEntityAdj = world.getWorldChunk(posAdj).getBlockEntity(posAdj);
             }
         }
@@ -274,7 +286,7 @@ public class PcaSyncProtocol {
             updateBlockEntity(player, blockEntity);
         }
 
-        Pair<Identifier, BlockPos> pair = new ImmutablePair<>(player.getEntityWorld().getRegistryKey().getValue(), pos);
+        Pair<Identifier, BlockPos> pair = new ImmutablePair<>(getDimId(player.getEntityWorld()), pos);
         lock.lock();
         playerWatchBlockPos.put(player, pair);
         if (!blockPosWatchPlayerSet.containsKey(pair)) {
@@ -303,7 +315,7 @@ public class PcaSyncProtocol {
             ModInfo.LOGGER.debug("{} watch entity {}: {}", player.getName().getString(), entityId, entity);
             updateEntity(player, entity);
 
-            Pair<Identifier, Entity> pair = new ImmutablePair<>(entity.getEntityWorld().getRegistryKey().getValue(), entity);
+            Pair<Identifier, Entity> pair = new ImmutablePair<>(getDimId(entity.getEntityWorld()), entity);
             lock.lock();
             playerWatchEntity.put(player, pair);
             if (!entityWatchPlayerSet.containsKey(pair)) {
@@ -332,11 +344,11 @@ public class PcaSyncProtocol {
 
     // 工具
     private static @Nullable Set<ServerPlayerEntity> getWatchPlayerList(@NotNull Entity entity) {
-        return entityWatchPlayerSet.get(getIdentifierEntityPair(entity.getEntityWorld().getRegistryKey().getValue(), entity));
+        return entityWatchPlayerSet.get(getIdentifierEntityPair(getDimId(entity.getEntityWorld()), entity));
     }
 
     private static @Nullable Set<ServerPlayerEntity> getWatchPlayerList(@NotNull World world, @NotNull BlockPos blockPos) {
-        return blockPosWatchPlayerSet.get(getIdentifierBlockPosPair(world.getRegistryKey().getValue(), blockPos));
+        return blockPosWatchPlayerSet.get(getIdentifierBlockPosPair(getDimId(world), blockPos));
     }
 
     public static boolean syncEntityToClient(@NotNull Entity entity) {
@@ -378,11 +390,11 @@ public class PcaSyncProtocol {
                     BlockPos posAdj = pos.offset(ChestBlock.getFacing(blockState));
                     playerListAdj = getWatchPlayerList(world, posAdj);
                 }
-            } else if (blockState.isOf(Blocks.BARREL) && CarpetHelper.getBoolRuleValue("largeBarrel")) {
+            } else if (blockState.getBlock() == Blocks.BARREL && CarpetHelper.getBoolRuleValue("largeBarrel")) {
                 Direction directionOpposite = blockState.get(BarrelBlock.FACING).getOpposite();
                 BlockPos posAdj = pos.offset(directionOpposite);
                 BlockState blockStateAdj = world.getBlockState(posAdj);
-                if (blockStateAdj.isOf(Blocks.BARREL) && blockStateAdj.get(BarrelBlock.FACING) == directionOpposite) {
+                if (blockStateAdj.getBlock() == Blocks.BARREL && blockStateAdj.get(BarrelBlock.FACING) == directionOpposite) {
                     playerListAdj = getWatchPlayerList(world, posAdj);
                 }
             }
