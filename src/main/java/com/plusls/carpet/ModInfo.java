@@ -19,6 +19,10 @@ public class ModInfo {
     }
 
     public static Identifier id(String path) {
+        //#if MC >= 12100
+        //$$ return Identifier.of(MOD_ID, path);
+        //#else
         return new Identifier(MOD_ID, path);
+        //#endif
     }
 }
