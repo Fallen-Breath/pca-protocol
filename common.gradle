@@ -6,7 +6,7 @@ apply plugin: 'me.fallenbreath.yamlang'
 int mcVersion = project.mcVersion
 
 preprocess {
-	tabIndentation = true
+	tabIndentation = false
 }
 
 repositories {
