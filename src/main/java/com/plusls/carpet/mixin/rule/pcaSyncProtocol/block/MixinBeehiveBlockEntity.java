@@ -36,7 +36,10 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
     @Inject(method = "tickBees", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER))
     //#if MC >= 11700
     private static void postTickBees(World world, BlockPos pos, BlockState state, List<?> bees, BlockPos flowerPos, CallbackInfo ci) {
-        BlockEntity blockEntity = Objects.requireNonNull(world.getBlockEntity(pos));
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity == null) {
+            return;
+        }
     //#else
     //$$ private void postTickBees(CallbackInfo ci) {
     //$$     BlockEntity blockEntity = this;
