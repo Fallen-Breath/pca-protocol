@@ -12,6 +12,7 @@ import me.fallenbreath.fanetlib.api.event.FanetlibServerEvents;
 import me.fallenbreath.fanetlib.api.packet.FanetlibPackets;
 import me.fallenbreath.fanetlib.api.packet.PacketCodec;
 import me.fallenbreath.fanetlib.api.packet.PacketHandlerS2C;
+import me.fallenbreath.fanetlib.api.packet.PacketId;
 import net.minecraft.block.BarrelBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -85,13 +86,13 @@ public class PcaSyncProtocol {
         PacketCodec<PacketByteBuf> codec = PacketCodec.of((p, buf) -> buf.writeBytes(p), b -> b);
 
         BiConsumer<Identifier, FapiCallback> c2s = (id, cb) -> {
-            FanetlibPackets.registerC2S(id, codec, (buf, ctx) -> {
+            FanetlibPackets.registerC2S(PacketId.of(id), codec, (buf, ctx) -> {
                 cb.process(ctx.getServer(), ctx.getPlayer(), ctx.getNetworkHandler(), buf, sender);
             });
         };
         Consumer<Identifier> s2c = (id) -> {
             s2cIds.add(id);
-            FanetlibPackets.registerS2C(id, codec, PacketHandlerS2C.dummy());
+            FanetlibPackets.registerS2C(PacketId.of(id), codec, PacketHandlerS2C.dummy());
         };
 
         c2s.accept(SYNC_BLOCK_ENTITY, PcaSyncProtocol::syncBlockEntityHandler);
@@ -113,7 +114,7 @@ public class PcaSyncProtocol {
             if (!s2cIds.contains(identifier)) {
                 throw new RuntimeException("unknown identifier " + identifier);
             }
-            player.networkHandler.sendPacket(FanetlibPackets.createS2C(identifier, buf));
+            player.networkHandler.sendPacket(FanetlibPackets.createS2C(PacketId.of(identifier), buf));
         }
     }
 
