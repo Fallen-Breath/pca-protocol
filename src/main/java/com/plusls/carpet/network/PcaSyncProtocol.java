@@ -83,7 +83,14 @@ public class PcaSyncProtocol {
 
     public static void init() {
         PacketSender sender = new PacketSender();
-        PacketCodec<PacketByteBuf> codec = PacketCodec.of((p, buf) -> buf.writeBytes(p), b -> b);
+        PacketCodec<PacketByteBuf> codec = PacketCodec.of(
+                (p, buf) -> buf.writeBytes(p),
+                buf -> {
+                    PacketByteBuf p = new PacketByteBuf(Unpooled.buffer());
+                    p.writeBytes(buf);
+                    return p;
+                }
+        );
 
         BiConsumer<Identifier, FapiCallback> c2s = (id, cb) -> {
             FanetlibPackets.registerC2S(PacketId.of(id), codec, (buf, ctx) -> {
