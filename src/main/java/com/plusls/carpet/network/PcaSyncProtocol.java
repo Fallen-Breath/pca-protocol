@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -80,9 +81,13 @@ public class PcaSyncProtocol {
     }
 
     private static final Set<Identifier> s2cIds = Sets.newHashSet();
+    private static final PacketSender packetSender = new PacketSender();
+    private static final AtomicBoolean registeredPackers = new AtomicBoolean();
 
-    public static void init() {
-        PacketSender sender = new PacketSender();
+    public static void registerPackets() {
+        if (!registeredPackers.compareAndSet(false, true)) {
+            return;
+        }
         PacketCodec<PacketByteBuf> codec = PacketCodec.of(
                 (p, buf) -> buf.writeBytes(p),
                 buf -> {
@@ -94,7 +99,7 @@ public class PcaSyncProtocol {
 
         BiConsumer<Identifier, FapiCallback> c2s = (id, cb) -> {
             FanetlibPackets.registerC2S(PacketId.of(id), codec, (buf, ctx) -> {
-                cb.process(ctx.getServer(), ctx.getPlayer(), ctx.getNetworkHandler(), buf, sender);
+                cb.process(ctx.getServer(), ctx.getPlayer(), ctx.getNetworkHandler(), buf, packetSender);
             });
         };
         Consumer<Identifier> s2c = (id) -> {
@@ -111,8 +116,11 @@ public class PcaSyncProtocol {
         s2c.accept(DISABLE_PCA_SYNC_PROTOCOL);
         s2c.accept(UPDATE_ENTITY);
         s2c.accept(UPDATE_BLOCK_ENTITY);
+    }
 
-        FanetlibServerEvents.registerPlayerJoinListener((svr, nh, p) -> onJoin(nh, sender, svr));
+    public static void init() {
+        registerPackets();
+        FanetlibServerEvents.registerPlayerJoinListener((svr, nh, p) -> onJoin(nh, packetSender, svr));
         FanetlibServerEvents.registerPlayerDisconnectListener((svr, nh, p) -> onDisconnect(nh, svr));
     }
 

@@ -22,7 +22,8 @@
   "accessWidener": "pca.accesswidener",
   "depends": {
     "fabricloader": ">=0.7.4",
-    "minecraft": "${minecraft_dependency}"
+    "minecraft": "${minecraft_dependency}",
+    "fanetlib": ">=0.2.0"
   },
   "breaks": {
     "pca": "*"

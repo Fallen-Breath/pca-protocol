@@ -4,6 +4,7 @@
   "package": "com.plusls.carpet.mixin",
   "compatibilityLevel": "{{COMPATIBILITY_LEVEL}}",
   "mixins": [
+    "FanetlibPacketRegistrationCenterMixin",
     "MinecraftServerMixin",
     "rule.pcaSyncProtocol.block.MixinAbstractFurnaceBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBarrelBlockEntity",
