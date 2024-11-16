@@ -5,10 +5,6 @@ apply plugin: 'me.fallenbreath.yamlang'
 
 int mcVersion = project.mcVersion
 
-preprocess {
-	tabIndentation = false
-}
-
 repositories {
 	maven {
 		url 'https://jitpack.io'
