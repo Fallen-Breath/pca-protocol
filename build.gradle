@@ -1,10 +1,10 @@
 plugins {
 	id 'maven-publish'
-	id 'fabric-loom' version '1.8-SNAPSHOT' apply false
+	id 'fabric-loom' version '1.9-SNAPSHOT' apply false
 
 	// https://github.com/ReplayMod/preprocessor
 	// https://github.com/Fallen-Breath/preprocessor
-	id 'com.replaymod.preprocess' version '8de9ff8bf3'
+	id 'com.replaymod.preprocess' version '9d21b334a7'
 
 	// https://github.com/Fallen-Breath/yamlang
 	id 'me.fallenbreath.yamlang' version '1.4.0' apply false
@@ -25,6 +25,7 @@ preprocess {
 	def mc1206 = createNode('1.20.6', 1_20_06, '')
     def mc1211 = createNode('1.21.1', 1_21_01, '')
     def mc1213 = createNode('1.21.3', 1_21_03, '')
+    def mc1214 = createNode('1.21.4', 1_21_04, '')
 
 	mc114.link(mc115, null)
 	mc115.link(mc116, null)
@@ -37,6 +38,7 @@ preprocess {
 	mc1204.link(mc1206, null)
     mc1206.link(mc1211, null)
     mc1211.link(mc1213, null)
+    mc1213.link(mc1214, null)
 }
 
 tasks.register('buildAndGather') {
