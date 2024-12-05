@@ -18,7 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.Objects;
+
+//#if MC >= 12104
+//$$ import net.minecraft.entity.passive.BeeEntity;
+//#endif
 
 // used in mc >= 1.15
 @Mixin(BeehiveBlockEntity.class)
@@ -78,7 +81,9 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
             //#endif
             at = @At(
                     value = "INVOKE",
-                    //#if MC >= 11700
+                    //#if MC >= 12104
+                    //$$ target = "Lnet/minecraft/entity/passive/BeeEntity;discard()V",
+                    //#elseif MC >= 11700
                     target = "Lnet/minecraft/entity/Entity;discard()V",
                     //#else
                     //$$ target = "Lnet/minecraft/entity/Entity;remove()V",
@@ -86,7 +91,11 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
                     ordinal = 0
             ),
             argsOnly = true)
+    //#if MC >= 12104
+    //$$ public BeeEntity postEnterHive(BeeEntity entity) {
+    //#else
     public Entity postEnterHive(Entity entity) {
+    //#endif
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
         }
