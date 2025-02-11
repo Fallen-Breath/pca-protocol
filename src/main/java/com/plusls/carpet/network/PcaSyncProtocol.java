@@ -89,7 +89,7 @@ public class PcaSyncProtocol {
             return;
         }
         PacketCodec<PacketByteBuf> codec = PacketCodec.of(
-                (p, buf) -> buf.writeBytes(p),
+                (p, buf) -> buf.writeBytes(p.copy()),
                 buf -> {
                     PacketByteBuf p = new PacketByteBuf(Unpooled.buffer());
                     p.writeBytes(buf);
