@@ -8,7 +8,11 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.util.math.BlockPos;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // 由于陷阱箱继承自箱子，因此不用 mixin 陷阱箱
 // implements ChestAnimationProgress 会出错 不知道为啥
@@ -24,9 +28,15 @@ public abstract class MixinChestBlockEntity extends LootableContainerBlockEntity
         );
     }
 
+    @Intrinsic
     @Override
     public void markDirty() {
         super.markDirty();
+    }
+
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(method = "markDirty", at = @At("RETURN"))
+    private void syncToClient(CallbackInfo ci) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update ChestBlockEntity: {}", this.pos);
         }
