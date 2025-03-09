@@ -7,7 +7,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.BrewingStandBlockEntity;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.inventory.SidedInventory;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +33,7 @@ public abstract class MixinBrewingStandBlockEntity extends LockableContainerBloc
     }
 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = "markDirty", at = @At("RETURN"))
+    @Inject(method = "markDirty()V", at = @At("RETURN"))
     private void syncToClient(CallbackInfo ci) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update BrewingStandBlockEntity: {}", this.pos);
