@@ -32,7 +32,7 @@ public abstract class MixinComparatorBlockEntity extends BlockEntity {
     }
 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = "markDirty", at = @At("RETURN"))
+    @Inject(method = "markDirty()V", at = @At("RETURN"))
     private void syncToClient(CallbackInfo ci) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update ComparatorBlockEntity: {}", this.pos);
