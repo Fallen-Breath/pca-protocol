@@ -11,6 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * mc1.14 ~ mc1.21.4: subproject 1.20.2 (main project)
+ * mc1.21.5+        : subproject 1.21.5        <--------
+ */
 @Mixin(AbstractHorseEntity.class)
 public abstract class MixinHorseBaseEntity {
     @Inject(method = "onInventoryChanged", at = @At(value = "HEAD"))
