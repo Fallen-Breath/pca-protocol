@@ -1,13 +1,13 @@
 plugins {
 	id 'maven-publish'
-	id 'fabric-loom' version '1.9-SNAPSHOT' apply false
+	id 'fabric-loom' version '1.10-SNAPSHOT' apply false
 
 	// https://github.com/ReplayMod/preprocessor
 	// https://github.com/Fallen-Breath/preprocessor
 	id 'com.replaymod.preprocess' version '9d21b334a7'
 
 	// https://github.com/Fallen-Breath/yamlang
-	id 'me.fallenbreath.yamlang' version '1.4.0' apply false
+	id 'me.fallenbreath.yamlang' version '1.4.1' apply false
 }
 
 preprocess {
@@ -26,6 +26,7 @@ preprocess {
     def mc1211 = createNode('1.21.1', 1_21_01, '')
     def mc1213 = createNode('1.21.3', 1_21_03, '')
     def mc1214 = createNode('1.21.4', 1_21_04, '')
+    def mc1215 = createNode('1.21.5', 1_21_05, '')
 
 	mc114.link(mc115, null)
 	mc115.link(mc116, null)
@@ -39,6 +40,7 @@ preprocess {
     mc1206.link(mc1211, null)
     mc1211.link(mc1213, null)
     mc1213.link(mc1214, null)
+    mc1214.link(mc1215, null)
 }
 
 tasks.register('buildAndGather') {
@@ -60,7 +62,7 @@ tasks.register('buildAndGather') {
 					exclude '*-dev.jar', '*-sources.jar', '*-shadow.jar'
 				}
 				into buildLibs(rootProject)
-				duplicatesStrategy DuplicatesStrategy.INCLUDE
+				duplicatesStrategy = DuplicatesStrategy.INCLUDE
 			}
 		}
 	}
