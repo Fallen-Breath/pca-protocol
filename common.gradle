@@ -7,10 +7,10 @@ int mcVersion = project.mcVersion
 
 repositories {
 	maven {
-		url 'https://jitpack.io'
+		url = 'https://jitpack.io'
 	}
 	maven {
-		url 'https://maven.fallenbreath.me/releases'
+		url = 'https://maven.fallenbreath.me/releases'
 	}
 }
 
@@ -167,9 +167,9 @@ jar {
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			artifactId base.archivesName.get()
-			from components.java
-            version = fullArtifactVersion
+            from components.java
+			artifactId = base.archivesName.get()
+			version = fullArtifactVersion
 		}
 	}
 
