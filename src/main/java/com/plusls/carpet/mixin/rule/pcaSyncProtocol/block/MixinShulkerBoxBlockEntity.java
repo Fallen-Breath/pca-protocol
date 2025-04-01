@@ -9,11 +9,7 @@ import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.util.math.BlockPos;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ShulkerBoxBlockEntity.class)
 public abstract class MixinShulkerBoxBlockEntity extends LootableContainerBlockEntity implements SidedInventory {
@@ -27,15 +23,11 @@ public abstract class MixinShulkerBoxBlockEntity extends LootableContainerBlockE
         );
     }
 
-    @Intrinsic
-    @Override
-    public void markDirty() {
-        super.markDirty();
-    }
-
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = "markDirty()V", at = @At("RETURN"))
-    private void syncToClient(CallbackInfo ci) {
+    /**
+     * @see MixinBlockEntity#pca$onMarkDirty()
+     */
+    @SuppressWarnings({"unused", "MissingUnique"})
+    protected void pca$onMarkDirty() {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update ShulkerBoxBlockEntity: {}", this.pos);
         }

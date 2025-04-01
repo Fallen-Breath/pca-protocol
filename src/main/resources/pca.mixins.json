@@ -9,6 +9,7 @@
     "rule.pcaSyncProtocol.block.MixinAbstractFurnaceBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBarrelBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBeehiveBlockEntity",
+    "rule.pcaSyncProtocol.block.MixinBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBrewingStandBlockEntity",
     "rule.pcaSyncProtocol.block.MixinChestBlockEntity",
     "rule.pcaSyncProtocol.block.MixinComparatorBlockEntity",
