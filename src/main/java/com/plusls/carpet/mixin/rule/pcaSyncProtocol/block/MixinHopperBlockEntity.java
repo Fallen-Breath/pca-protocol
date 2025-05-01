@@ -3,6 +3,7 @@ package com.plusls.carpet.mixin.rule.pcaSyncProtocol.block;
 import com.plusls.carpet.ModInfo;
 import com.plusls.carpet.PcaSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
+import com.plusls.carpet.util.PcaBlockEntityDirtyHook;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.Hopper;
@@ -20,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 //#endif
 
 @Mixin(HopperBlockEntity.class)
-public abstract class MixinHopperBlockEntity extends LootableContainerBlockEntity implements Hopper {
+public abstract class MixinHopperBlockEntity extends LootableContainerBlockEntity implements Hopper, PcaBlockEntityDirtyHook {
 
     protected MixinHopperBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(
@@ -60,11 +61,8 @@ public abstract class MixinHopperBlockEntity extends LootableContainerBlockEntit
         //#endif
     }
 
-    /**
-     * @see MixinBlockEntity#pca$onMarkDirty()
-     */
-    @SuppressWarnings({"unused", "MissingUnique"})
-    protected void pca$onMarkDirty() {
+    @Override
+    public void pca$onMarkDirty() {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             ModInfo.LOGGER.debug("update HopperBlockEntity: {}", this.pos);
         }
