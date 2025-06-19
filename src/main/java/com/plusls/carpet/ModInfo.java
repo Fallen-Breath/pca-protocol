@@ -3,14 +3,26 @@ package com.plusls.carpet;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.util.Identifier;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
+//#if MC >= 11802
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+//#else
+//$$ import org.apache.logging.log4j.LogManager;
+//$$ import org.apache.logging.log4j.Logger;
+//#endif
+
 public class ModInfo {
-    public static String MOD_ID = "pca";  // still use pca here so protocol works
-    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static final String MOD_ID = "pca-protocol";
+    public static final String MOD_PROTOCOL_ID = "pca";
+    public static final Logger LOGGER =
+            //#if MC >= 11802
+            LogUtils.getLogger();
+            //#else
+            //$$ LogManager.getLogger();
+            //#endif
     public static String MOD_VERSION;
 
     static {
@@ -20,9 +32,9 @@ public class ModInfo {
 
     public static Identifier id(String path) {
         //#if MC >= 12100
-        //$$ return Identifier.of(MOD_ID, path);
+        //$$ return Identifier.of(MOD_PROTOCOL_ID, path);
         //#else
-        return new Identifier(MOD_ID, path);
+        return new Identifier(MOD_PROTOCOL_ID, path);
         //#endif
     }
 }

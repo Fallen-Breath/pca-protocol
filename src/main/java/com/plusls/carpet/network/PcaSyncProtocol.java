@@ -7,6 +7,7 @@ import com.plusls.carpet.PcaMod;
 import com.plusls.carpet.PcaSettings;
 import com.plusls.carpet.fakefapi.PacketSender;
 import com.plusls.carpet.util.CarpetHelper;
+import com.plusls.carpet.util.EntityUtils;
 import io.netty.buffer.Unpooled;
 import me.fallenbreath.fanetlib.api.event.FanetlibServerEvents;
 import me.fallenbreath.fanetlib.api.packet.FanetlibPackets;
@@ -41,6 +42,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+//#if MC >= 12106
+//$$ import net.minecraft.storage.NbtWriteView;
+//$$ import net.minecraft.util.ErrorReporter;
+//#endif
 
 //#if MC < 11600
 //$$ import net.minecraft.world.dimension.DimensionType;
@@ -174,7 +180,7 @@ public class PcaSyncProtocol {
     // 传输 World 是为了通知客户端该 Entity 属于哪个 World
     public static void updateEntity(@NotNull ServerPlayerEntity player, @NotNull Entity entity) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeIdentifier(getDimId(entity.getEntityWorld()));
+        buf.writeIdentifier(getDimId(EntityUtils.getEntityWorld(entity)));
         buf.writeInt(
                 //#if MC >= 11700
                 entity.getId()
@@ -182,7 +188,15 @@ public class PcaSyncProtocol {
                 //$$ entity.getEntityId()
                 //#endif
         );
+        //#if MC >= 12106
+        //$$ try (ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), ModInfo.LOGGER)) {
+        //$$     var view = NbtWriteView.create(logging, entity.getRegistryManager());
+        //$$     entity.writeData(view);
+        //$$     buf.writeNbt(view.getNbt());
+        //$$ }
+        //#else
         buf.writeNbt(entity.writeNbt(new NbtCompound()));
+        //#endif
         ServerPlayNetworking.send(player, UPDATE_ENTITY, buf);
     }
 
@@ -302,7 +316,7 @@ public class PcaSyncProtocol {
             updateBlockEntity(player, blockEntity);
         }
 
-        Pair<Identifier, BlockPos> pair = new ImmutablePair<>(getDimId(player.getEntityWorld()), pos);
+        Pair<Identifier, BlockPos> pair = new ImmutablePair<>(getDimId(EntityUtils.getEntityWorld(player)), pos);
         lock.lock();
         playerWatchBlockPos.put(player, pair);
         if (!blockPosWatchPlayerSet.containsKey(pair)) {
@@ -331,7 +345,7 @@ public class PcaSyncProtocol {
             ModInfo.LOGGER.debug("{} watch entity {}: {}", player.getName().getString(), entityId, entity);
             updateEntity(player, entity);
 
-            Pair<Identifier, Entity> pair = new ImmutablePair<>(getDimId(entity.getEntityWorld()), entity);
+            Pair<Identifier, Entity> pair = new ImmutablePair<>(getDimId(EntityUtils.getEntityWorld(entity)), entity);
             lock.lock();
             playerWatchEntity.put(player, pair);
             if (!entityWatchPlayerSet.containsKey(pair)) {
@@ -360,7 +374,7 @@ public class PcaSyncProtocol {
 
     // 工具
     private static @Nullable Set<ServerPlayerEntity> getWatchPlayerList(@NotNull Entity entity) {
-        return entityWatchPlayerSet.get(getIdentifierEntityPair(getDimId(entity.getEntityWorld()), entity));
+        return entityWatchPlayerSet.get(getIdentifierEntityPair(getDimId(EntityUtils.getEntityWorld(entity)), entity));
     }
 
     private static @Nullable Set<ServerPlayerEntity> getWatchPlayerList(@NotNull World world, @NotNull BlockPos blockPos) {
@@ -368,7 +382,7 @@ public class PcaSyncProtocol {
     }
 
     public static boolean syncEntityToClient(@NotNull Entity entity) {
-        if (entity.getEntityWorld().isClient()) {
+        if (EntityUtils.getEntityWorld(entity).isClient()) {
             return false;
         }
         lock.lock();
