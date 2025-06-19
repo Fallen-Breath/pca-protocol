@@ -4,7 +4,7 @@ plugins {
 
 	// https://github.com/ReplayMod/preprocessor
 	// https://github.com/Fallen-Breath/preprocessor
-	id 'com.replaymod.preprocess' version '9d21b334a7'
+	id 'com.replaymod.preprocess' version '0a04a5668b'
 
 	// https://github.com/Fallen-Breath/yamlang
 	id 'me.fallenbreath.yamlang' version '1.4.1' apply false
@@ -27,6 +27,7 @@ preprocess {
     def mc1213 = createNode('1.21.3', 1_21_03, '')
     def mc1214 = createNode('1.21.4', 1_21_04, '')
     def mc1215 = createNode('1.21.5', 1_21_05, '')
+    def mc1216 = createNode('1.21.6', 1_21_06, '')
 
 	mc114.link(mc115, null)
 	mc115.link(mc116, null)
@@ -41,6 +42,7 @@ preprocess {
     mc1211.link(mc1213, null)
     mc1213.link(mc1214, null)
     mc1214.link(mc1215, null)
+    mc1215.link(mc1216, null)
 }
 
 tasks.register('buildAndGather') {
