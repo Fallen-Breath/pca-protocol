@@ -51,8 +51,8 @@ loom {
 	accessWidenerPath.set(project.rootProject.file("src/main/resources/pca.accesswidener"))
 
     def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
-	runConfigs.configureEach {
-		// to make sure it generates all "Minecraft Client (:subproject_name)" applications
+	runConfigs.server {
+		// to make sure it generates all "Minecraft Server (:subproject_name)" applications
 		ideConfigGenerated = true
 		runDir '../../run'
 		vmArgs commonVmArgs
@@ -61,11 +61,6 @@ loom {
 		def auditVmArgs = [*commonVmArgs, '-DmixinAuditor.audit=true']
 		serverMixinAudit {
 			server()
-			vmArgs auditVmArgs
-			ideConfigGenerated false
-		}
-		clientMixinAudit {
-			client()
 			vmArgs auditVmArgs
 			ideConfigGenerated false
 		}
