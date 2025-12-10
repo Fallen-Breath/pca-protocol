@@ -1,6 +1,6 @@
 plugins {
 	id 'maven-publish'
-	id 'fabric-loom' version '1.11-SNAPSHOT' apply false
+	id 'fabric-loom' version '1.14-SNAPSHOT' apply false
 
 	// https://github.com/ReplayMod/preprocessor
 	// https://github.com/Fallen-Breath/preprocessor
@@ -23,12 +23,13 @@ preprocess {
 	def mc1202 = createNode('1.20.2', 1_20_02, '')
 	def mc1204 = createNode('1.20.4', 1_20_04, '')
 	def mc1206 = createNode('1.20.6', 1_20_06, '')
-    def mc1211 = createNode('1.21.1', 1_21_01, '')
-    def mc1213 = createNode('1.21.3', 1_21_03, '')
-    def mc1214 = createNode('1.21.4', 1_21_04, '')
-    def mc1215 = createNode('1.21.5', 1_21_05, '')
-    def mc1218 = createNode('1.21.8', 1_21_08, '')
-    def mc1219 = createNode('1.21.9', 1_21_09, '')
+	def mc1211 = createNode('1.21.1', 1_21_01, '')
+	def mc1213 = createNode('1.21.3', 1_21_03, '')
+	def mc1214 = createNode('1.21.4', 1_21_04, '')
+	def mc1215 = createNode('1.21.5', 1_21_05, '')
+	def mc1218 = createNode('1.21.8', 1_21_08, '')
+	def mc12110 = createNode('1.21.10', 1_21_10, '')
+	def mc12111 = createNode('1.21.11', 1_21_11, '')
 
 	mc114.link(mc115, null)
 	mc115.link(mc116, null)
@@ -39,12 +40,13 @@ preprocess {
 	mc1201.link(mc1202, null)
 	mc1202.link(mc1204, null)
 	mc1204.link(mc1206, null)
-    mc1206.link(mc1211, null)
-    mc1211.link(mc1213, null)
-    mc1213.link(mc1214, null)
-    mc1214.link(mc1215, null)
-    mc1215.link(mc1218, null)
-    mc1218.link(mc1219, null)
+	mc1206.link(mc1211, null)
+	mc1211.link(mc1213, null)
+	mc1213.link(mc1214, null)
+	mc1214.link(mc1215, null)
+	mc1215.link(mc1218, null)
+	mc1218.link(mc12110, null)
+	mc12110.link(mc12111, null)
 }
 
 tasks.register('buildAndGather') {
