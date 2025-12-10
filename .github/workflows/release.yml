@@ -168,6 +168,10 @@ jobs:
       - name: Publish Minecraft Mods
         uses: Kira-NT/mc-publish@v3.3
         with:
+          # https://modrinth.com/settings/pats
+          modrinth-id: DTjVkI5f
+          modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
+
           github-tag: ${{ steps.release_info.outputs.tag_name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
