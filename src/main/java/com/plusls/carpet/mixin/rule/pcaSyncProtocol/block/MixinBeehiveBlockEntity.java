@@ -3,13 +3,6 @@ package com.plusls.carpet.mixin.rule.pcaSyncProtocol.block;
 import com.plusls.carpet.ModInfo;
 import com.plusls.carpet.PcaSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BeehiveBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,9 +11,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 //#if MC >= 12104
-//$$ import net.minecraft.entity.passive.BeeEntity;
+//$$ import net.minecraft.world.entity.animal.Bee;
 //#endif
 
 // used in mc >= 1.15
@@ -36,9 +36,9 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
         );
     }
 
-    @Inject(method = "tickBees", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER))
+    @Inject(method = "tickOccupants", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER))
     //#if MC >= 11700
-    private static void postTickBees(World world, BlockPos pos, BlockState state, List<?> bees, BlockPos flowerPos, CallbackInfo ci) {
+    private static void postTickBees(Level world, BlockPos pos, BlockState state, List<?> bees, BlockPos flowerPos, CallbackInfo ci) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity == null) {
             return;
@@ -48,56 +48,52 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
     //$$     BlockEntity blockEntity = this;
     //#endif
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(blockEntity)) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", blockEntity.getPos());
+            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", blockEntity.getBlockPos());
         }
     }
 
-    @Inject(method = "tryReleaseBee", at = @At(value = "RETURN"))
+    @Inject(method = "releaseAllOccupants", at = @At(value = "RETURN"))
     public void postTryReleaseBee(CallbackInfoReturnable<List<Entity>> cir) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this) && cir.getReturnValue() != null) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
+            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
     }
 
     @Inject(
-            //#if MC >= 11700
-            method = "readNbt",
-            //#else
-            //$$ method = "fromTag",
-            //#endif
+            method = "load",
             at = @At(value = "RETURN")
     )
     public void postFromTag(CallbackInfo ci) {
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
+            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
     }
 
     @ModifyVariable(
             //#if MC >= 12006
-            //$$ method = "tryEnterHive",
+            //$$ method = "addOccupant",
             //#else
-            method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V",
+            method = "addOccupantWithPresetTicks(Lnet/minecraft/world/entity/Entity;ZI)V",
             //#endif
             at = @At(
                     value = "INVOKE",
                     //#if MC >= 12104
-                    //$$ target = "Lnet/minecraft/entity/passive/BeeEntity;discard()V",
+                    //$$ target = "Lnet/minecraft/world/entity/animal/Bee;discard()V",
                     //#elseif MC >= 11700
-                    target = "Lnet/minecraft/entity/Entity;discard()V",
+                    target = "Lnet/minecraft/world/entity/Entity;discard()V",
                     //#else
-                    //$$ target = "Lnet/minecraft/entity/Entity;remove()V",
+                    //$$ target = "Lnet/minecraft/world/entity/Entity;remove()V",
                     //#endif
                     ordinal = 0
             ),
             argsOnly = true)
     //#if MC >= 12104
-    //$$ public BeeEntity postEnterHive(BeeEntity entity) {
+    //$$ public Bee postEnterHive(Bee entity) {
     //#else
     public Entity postEnterHive(Entity entity) {
     //#endif
         if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
+            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
         return entity;
     }

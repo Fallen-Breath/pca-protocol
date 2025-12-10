@@ -1,17 +1,17 @@
 package com.plusls.carpet.util;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class EntityUtils
 {
-	public static World getEntityWorld(@NotNull Entity entity)
+	public static Level getEntityWorld(@NotNull Entity entity)
 	{
-		//#if 1.21.6 <= MC && MC < 1.21.9
-		//$$ return entity.getWorld();
+		//#if MC >= 12106
+		//$$ return entity.level();
 		//#else
-		return entity.getEntityWorld();
+		return entity.getCommandSenderWorld();
 		//#endif
 	}
 }

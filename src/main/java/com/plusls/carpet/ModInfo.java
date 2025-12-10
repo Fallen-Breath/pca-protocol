@@ -2,8 +2,7 @@ package com.plusls.carpet;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.ResourceLocation;
 import java.util.Optional;
 
 //#if MC >= 11802
@@ -30,11 +29,11 @@ public class ModInfo {
         modContainerOptional.ifPresent(modContainer -> MOD_VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
     }
 
-    public static Identifier id(String path) {
+    public static ResourceLocation id(String path) {
         //#if MC >= 12100
-        //$$ return Identifier.of(MOD_PROTOCOL_ID, path);
+        //$$ return ResourceLocation.fromNamespaceAndPath(MOD_PROTOCOL_ID, path);
         //#else
-        return new Identifier(MOD_PROTOCOL_ID, path);
+        return new ResourceLocation(MOD_PROTOCOL_ID, path);
         //#endif
     }
 }
