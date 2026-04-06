@@ -11,7 +11,7 @@
     "homepage": "https://github.com/Fallen-Breath/pca-protocol",
     "sources": "https://github.com/Fallen-Breath/pca-protocol"
   },
-  "license": "CC0-1.0",
+  "license": "LGPL-3.0",
   "icon": "icon.png",
   "environment": "server",
   "entrypoints": {
