@@ -6,6 +6,7 @@
   "mixins": [
     "FanetlibPacketRegistrationCenterMixin",
     "MinecraftServerMixin",
+    "SimpleContainerMixin",
     "rule.pcaSyncProtocol.block.MixinAbstractFurnaceBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBarrelBlockEntity",
     "rule.pcaSyncProtocol.block.MixinBeehiveBlockEntity",

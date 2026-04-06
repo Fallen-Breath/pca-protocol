@@ -3,6 +3,7 @@ package com.plusls.carpet.mixin.rule.pcaSyncProtocol.entity;
 import com.plusls.carpet.ModInfo;
 import com.plusls.carpet.PcaSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
+import com.plusls.carpet.util.PcaSimpleContainer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
@@ -32,7 +33,7 @@ public abstract class MixinHorseBaseEntity extends Animal
         if (world.isClientSide()) {
             return;
         }
-        this.inventory.addListener(inv -> {
+        ((PcaSimpleContainer)this.inventory).pca$addListener(inv -> {
             if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncEntityToClient(this)) {
                 ModInfo.LOGGER.debug("update HorseBaseEntity inventory: onInventoryChanged.");
             }
