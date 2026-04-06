@@ -19,7 +19,6 @@
   "mixins": [
     "pca.mixins.json"
   ],
-  "accessWidener": "pca.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.25",
     "minecraft": "${minecraft_dependency}",

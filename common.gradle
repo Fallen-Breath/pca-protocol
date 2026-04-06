@@ -72,8 +72,6 @@ if (mcVersion >= 260000) {
 JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 
 loom {
-	accessWidenerPath.set(project.rootProject.file("src/main/resources/pca.accesswidener"))
-
     def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=true']
 	runConfigs.server {
 		// to make sure it generates all "Minecraft Server (:subproject_name)" applications
