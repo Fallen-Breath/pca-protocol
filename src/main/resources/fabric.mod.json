@@ -12,7 +12,7 @@
     "sources": "https://github.com/Fallen-Breath/pca-protocol"
   },
   "license": "CC0-1.0",
-  "icon": "assets/pca/icon.png",
+  "icon": "icon.png",
   "environment": "server",
   "entrypoints": {
   },
