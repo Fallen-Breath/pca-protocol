@@ -1,7 +1,7 @@
 plugins {
 	id 'maven-publish'
-	id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT' apply false
-	id 'net.fabricmc.fabric-loom-remap' version '1.15-SNAPSHOT' apply false
+	id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT' apply false
+	id 'net.fabricmc.fabric-loom-remap' version '1.17-SNAPSHOT' apply false
 
 	// https://github.com/ReplayMod/preprocessor
 	// https://github.com/Fallen-Breath/preprocessor
@@ -31,7 +31,9 @@ preprocess {
 	def mc1218 = createNode('1.21.8', 1_21_08, '')
 	def mc12110 = createNode('1.21.10', 1_21_10, '')
 	def mc12111 = createNode('1.21.11', 1_21_11, '')
-	def mc260101 = createNode('26.1.1', 26_01_01, '')
+	def mc2601 = createNode('26.1.2', 26_01_02, '')
+	def mc2602 = createNode('26.2', 26_02_00, '')
+	def mc2603 = createNode('26.3', 26_03_00, '')
 
 	mc114.link(mc115, null)
 	mc115.link(mc116, null)
@@ -49,7 +51,9 @@ preprocess {
 	mc1215.link(mc1218, null)
 	mc1218.link(mc12110, null)
 	mc12110.link(mc12111, null)
-	mc12111.link(mc260101, null)
+	mc12111.link(mc2601, null)
+	mc2601.link(mc2602, null)
+	mc2602.link(mc2603, null)
 
 	// See https://github.com/Fallen-Breath/fabric-mod-template/blob/1d72d77a1c5ce0bf060c2501270298a12adab679/build.gradle#L55-L63
 	for (final def node in getNodes()) {
